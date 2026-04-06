@@ -17,3 +17,8 @@ const firebaseConfig = {
   measurementId: "G-EG5MBM5YH6"
 };
 
+// Create references to each branch of the database
+const health = ref(database, 'health'); // to be used to interact with health variables
+const vibes = ref(database, 'vibes'); // to be used to interact with vibes variables
+const lamp = ref(database, 'lamp'); // to be used to interact with lamp variables
+
