@@ -20,6 +20,19 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
+
+//========================================
+// SPI initialization and LED strip setup
+//========================================
+const SPI = require('pi-spi');
+const dotstar = require('dotstar');
+const spi = SPI.initialize('/dev/spidev0.0');
+const ledCount = 60; // Number of LEDs on your strip
+const strip = new dotstar.Dotstar(spi, {
+  length: ledCount
+});
+
+
 // =========================
 // Watch current vibe
 // =========================
@@ -36,6 +49,13 @@ function watchVibeAndUpdateLight() {
             }
 
             const vibe = snapshot.val();
+            if (vibe == "tired") {
+                // Set all LEDs to a color (Red, Green, Blue, Brightness 0.0 to 1.0)
+                strip.all(0,0,255, 1);
+                strip.sync(); // Push data to the physical strip
+                console.log("Vibe is 'tired', skipping LED update.");
+                return;
+            }
             console.log(`Current vibe changed to: ${vibe}`);
 
             const rgbRef = ref(database, `vibes/${vibe}`);
