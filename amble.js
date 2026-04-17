@@ -1,5 +1,5 @@
 const { initializeApp } = require('firebase/app');
-const { getDatabase, ref, onValue, get } = require('firebase/database');
+const { getDatabase, ref, child, onValue, get } = require('firebase/database');
 const { exec } = require('child_process');
 // const sense = require('@trbll/sense-hat-led');
 
@@ -55,6 +55,19 @@ function watchVibeAndUpdateLight() {
 
             // TO DO: get color values from "vibes" reference:
             const vibeColorRef = ref(database, "vibes");
+            const dbRef = ref(getDatabase());
+            get(child(dbRef, `users/${userId}`)).then((snapshot) => {
+              if (snapshot.exists()) {
+                console.log(snapshot.val());
+              } else {
+                console.log("No data available");
+              }
+            }).catch((error) => {
+              console.error(error);
+            });
+
+
+            
             get(vibeColorRef) // need to figure out how to do this
             int r = 255;
             int g = 255;
