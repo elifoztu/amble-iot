@@ -38,24 +38,34 @@ const strip = new dotstar.Dotstar(spi, {
 // =========================
 function watchVibeAndUpdateLight() {
     const vibeRef = ref(database, "lamp/current_vibe");
-
+    
     console.log("Listening for changes to lamp/current_vibe...");
 
     onValue(vibeRef, async (snapshot) => {
         try {
+            
+            // if no data is available, print message to console
             if (!snapshot.exists()) {
                 console.log("No current_vibe data found.");
                 return;
             }
 
+            // otherwise, assign the vibe value to variable "vibe"
             const vibe = snapshot.val();
-            if (vibe == "tired") {
-                // Set all LEDs to a color (Red, Green, Blue, Brightness 0.0 to 1.0)
-                strip.all(0,0,255, 1);
-                strip.sync(); // Push data to the physical strip
-                console.log("Vibe is 'tired', skipping LED update.");
-                return;
-            }
+
+            // TO DO: get color values from "vibes" reference:
+            const vibeColorRef = ref(database, "vibes");
+            get(vibeColorRef) // need to figure out how to do this
+            int r = 255;
+            int g = 255;
+            int b = 255;
+
+            // Set all LEDs to preset colors from database at brightness 100%
+            strip.all(r,g,b, 1);
+            strip.sync(); // Push data to the physical strip
+                 
+            
+            
             console.log(`Current vibe changed to: ${vibe}`);
 
             const rgbRef = ref(database, `vibes/${vibe}`);
