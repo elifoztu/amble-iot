@@ -53,34 +53,6 @@ function watchVibeAndUpdateLight() {
             // otherwise, assign the vibe value to variable "vibe"
             const vibe = snapshot.val();
 
-            // TO DO: get color values from "vibes" reference:
-            const vibeColorRef = ref(database, "vibes");
-            const dbRef = ref(getDatabase());
-            get(child(dbRef, `users/${userId}`)).then((snapshot) => {
-              if (snapshot.exists()) {
-                console.log(snapshot.val());
-              } else {
-                console.log("No data available");
-              }
-            }).catch((error) => {
-              console.error(error);
-            });
-
-
-            
-            get(vibeColorRef) // need to figure out how to do this
-            int r = 255;
-            int g = 255;
-            int b = 255;
-
-            // Set all LEDs to preset colors from database at brightness 100%
-            strip.all(r,g,b, 1);
-            strip.sync(); // Push data to the physical strip
-                 
-            
-            
-            console.log(`Current vibe changed to: ${vibe}`);
-
             const rgbRef = ref(database, `vibes/${vibe}`);
             const rgbSnap = await get(rgbRef);
 
@@ -88,12 +60,21 @@ function watchVibeAndUpdateLight() {
                 console.log(`No RGB found for vibe "${vibe}"`);
                 return;
             }
-
+            
             const { r, g, b } = rgbSnap.val();
+
+            // Set all LEDs to preset colors from database at brightness 100%
+            strip.all(r,g,b, 1);
+            strip.sync(); // Push data to the physical strip
+                 
+            
+            console.log(`Current vibe changed to: ${vibe}`);
             console.log(`RGB -> R:${r} G:${g} B:${b}`);
 
-            // sense.setPixel(0, 0, r, g, b);
-            console.log("LED update skipped for now.");
+
+            // sense.setPixel(0, 0, r, g, b); // for if we need to use pi instead for some reason
+            // console.log("pi LED update skipped for now.");
+            
         } catch (error) {
             console.error("Error handling vibe update:", error);
         }
