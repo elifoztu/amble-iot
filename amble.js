@@ -1,4 +1,4 @@
-const { initializeApp } = require('firebase/app');
+{ initializeApp } = require('firebase/app');
 const { getDatabase, ref, child, onValue, get } = require('firebase/database');
 const { exec } = require('child_process');
 // const sense = require('@trbll/sense-hat-led');
@@ -175,20 +175,37 @@ function watchMotor() {
             if (motorState === true) {
                 console.log("Motor signal received: running motor_right.py");
 
-                exec('python3 motor_right.py', (error, stdout, stderr) => {
+                exec('python3 fanSweep.py', (error, stdout, stderr) => {
                     if (error) {
-                        console.error(`Error running motor_right.py: ${error.message}`);
+                        console.error(`Error running fanSweep.py: ${error.message}`);
                         return;
                     }
                     if (stderr) {
-                        console.error(`motor_right.py stderr: ${stderr}`);
+                        console.error(`fanSweep.py stderr: ${stderr}`);
                     }
                     if (stdout) {
-                        console.log(`motor_right.py stdout: ${stdout}`);
+                        console.log(`fanSweep.py stdout: ${stdout}`);
                     }
                 });
+            }
 
-            } else if (motorState === false) {
+            else if (motorState === false) {
+                console.log("Motor signal received: running motor_stop.py");
+
+                exec('python3 motor_stop.py', (error, stdout, stderr) => {  
+                    if (error) {
+                        console.error(`Error running motor_stop.py: ${error.message}`);
+                        return;
+                    }              
+                    if (stderr) {
+                        console.error(`motor_stop.py stderr: ${stderr}`);
+                    }   
+                    if (stdout) {
+                        console.log(`motor_stop.py stdout: ${stdout}`);
+                    }
+                });
+            }
+             else if (motorState === false) {
                 console.log("Motor signal received: false (no action taken)");
             } else {
                 console.log("Motor value is not a boolean:", motorState);
