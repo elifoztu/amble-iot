@@ -1,7 +1,10 @@
-{ initializeApp } = require('firebase/app');
+const { initializeApp } = require('firebase/app');
 const { getDatabase, ref, child, onValue, get } = require('firebase/database');
-const { exec } = require('child_process');
+const { exec, spawn } = require('child_process');
 // const sense = require('@trbll/sense-hat-led');
+
+// Variable to store disco process reference
+let discoProcess = null;
 
 // =========================
 // Firebase config
@@ -63,6 +66,46 @@ function watchVibeAndUpdateLight() {
             
             const { r, g, b } = rgbSnap.val();
 
+
+            // if vibe is party mode, run the disco.js script to start the disco lights
+                if (vibe === "party") {
+                    console.log("Party mode activated: running disco.js");
+                    // Kill any existing disco process first
+                    if (discoProcess) {
+                        console.log("Stopping existing disco process (PID: " + discoProcess.pid + ")");
+                        discoProcess.kill('SIGTERM');
+                        discoProcess = null;
+                    }
+                    // Start new disco process
+                    discoProcess = spawn('node', ['Disco.js']);
+                    console.log("Disco process started with PID: " + discoProcess.pid);
+                    
+                    discoProcess.stdout.on('data', (data) => {
+                        console.log(`disco.js stdout: ${data}`);
+                    });
+                    
+                    discoProcess.stderr.on('data', (data) => {
+                        console.error(`disco.js stderr: ${data}`);
+                    });
+                    
+                    discoProcess.on('error', (error) => {
+                        console.error(`Error running disco.js: ${error.message}`);
+                    });
+                    
+                    discoProcess.on('close', (code) => {
+                        console.log(`disco.js exited with code ${code}`);
+                        discoProcess = null;
+                    });
+                } else {
+                    console.log("Non-party vibe detected: ensuring disco.js is not running");
+
+                    // Stop disco.js if it's running
+                    if (discoProcess) {
+                        console.log("Stopping disco process (PID: " + discoProcess.pid + ")");
+                        discoProcess.kill('SIGTERM');
+                        discoProcess = null;
+                    }
+                } 
             // Set all LEDs to preset colors from database at brightness 100%
             strip.all(r,g,b, 1);
             strip.sync(); // Push data to the physical strip
@@ -71,9 +114,6 @@ function watchVibeAndUpdateLight() {
             console.log(`Current vibe changed to: ${vibe}`);
             console.log(`RGB -> R:${r} G:${g} B:${b}`);
 
-
-            // sense.setPixel(0, 0, r, g, b); // for if we need to use pi instead for some reason
-            // console.log("pi LED update skipped for now.");
             
         } catch (error) {
             console.error("Error handling vibe update:", error);
