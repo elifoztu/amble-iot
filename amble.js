@@ -123,16 +123,6 @@ function watchVibeAndUpdateLight() {
     });
 }
 
-//========================
-// Analyze Heart Rate
-//========================
-
-// TO-DO:
-// - read in current heart rate (from the cpp watch simulator as you would from the ios application - probably via web socket)
-// - read in resting/active averages
-// - compare the two
-// - change light, motor, and fan values in database if needed
-
 
 // =========================
 // Watch fan
